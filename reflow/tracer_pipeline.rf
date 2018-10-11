@@ -17,37 +17,47 @@ param (
 	input_fq2 string
 	// cell ID
 	sample_id string
-	// output file name
+	// s3 path to output dir
 	output_dir string
-	// how many threads to execute HaplotypeCaller with
+	// how many threads to execute Tracer assemble with
 	threads = 4
 )
 
 // Declare GLOBAL variables
 val tracer = "dcroote/tracer:add-cdr3"
 val gatk = "broadinstitute/gatk" // hoping this guy has gunzip
+// Initiate the system modules "files" (system modules begin
+// with $), assigning its instance to the "files" identifier.
+val files = make("$/files")
+// Instantiate Go system module "strings"
+val strings = make("$/strings")
+val dirs = make("$/dirs")
 
 // Unzip()
 //		gunzip the the gzipped fastqs
 func Unzip(gzipped file) = 
 	exec(image := gatk) (output file) {"
-		gatk gunzip gzipped
+		gunzip {{gzipped}}.gz
 	"}
 
 // Assemble()
 //		Run Tracer assemble
-func Assemble(fq1_unzipped file, fq2_unzipped file, sample_id) dir =
-	exec(image := tracer) (out_dir dir) {"
-		tracer assemble --ncores {{threads}} --species Hsap {{fq1}} {{fq2}} {{sample_id}} {{out_dir}}
+func Assemble(sample_id string, fq1_unzipped file, fq2_unzipped file) dir = {
+
+	output := exec(image := tracer, cpu := threads, mem := 16*GiB) (out_dir dir) {"
+		tracer assemble --ncores {{threads}} --species Hsap {{fq1_unzipped}} {{fq2_unzipped}} {{sample_id}} {{out_dir}}
 	"}
+
+	output
+}
 
 val fq1 = file(input_fq1) // initialized as a string, need to convert to file
 val fq2 = file(input_fq2) // initialized as a string, need to convert to file
 
 fq1_unzipped := Unzip(fq1)
 fq2_unzipped := Unzip(fq2)
-assembled_dir := Assemble(fq1_unzipped, fq2_unzipped, sample_id)
+assembled_dir := Assemble(sample_id, fq1_unzipped, fq2_unzipped)
 
 // Main()
-@requires(cpu := 1)
-val Main = files.Copy(assembled_dir, output_dir) // not sure what to do here
+@requires(cpu := 2, mem := 4*GiB)
+val Main = dirs.Copy(assembled_dir, output_dir)
