@@ -1,0 +1,53 @@
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+// script: tracer_pipeline.rf
+// authors: Lincoln Harris
+// date: 10.11.18
+// 
+// Can I implement my existing TCR assembly pipeline in reflow? 
+//
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+
+// command line params
+param (
+	// s3 path to fastq file r1
+	input_fq1 string
+	// s3 path to fastq file r2
+	input_fq2 string
+	// cell ID
+	sample_id string
+	// output file name
+	output_dir string
+	// how many threads to execute HaplotypeCaller with
+	threads = 4
+)
+
+// Declare GLOBAL variables
+val tracer = "dcroote/tracer:add-cdr3"
+val gatk = "broadinstitute/gatk" // hoping this guy has gunzip
+
+// Unzip()
+//		gunzip the the gzipped fastqs
+func Unzip(gzipped file) = 
+	exec(image := gatk) (output file) {"
+		gatk gunzip gzipped
+	"}
+
+// Assemble()
+//		Run Tracer assemble
+func Assemble(fq1_unzipped file, fq2_unzipped file, sample_id) dir =
+	exec(image := tracer) (out_dir dir) {"
+		tracer assemble --ncores {{threads}} --species Hsap {{fq1}} {{fq2}} {{sample_id}} {{out_dir}}
+	"}
+
+val fq1 = file(input_fq1) // initialized as a string, need to convert to file
+val fq2 = file(input_fq2) // initialized as a string, need to convert to file
+
+fq1_unzipped := Unzip(fq1)
+fq2_unzipped := Unzip(fq2)
+assembled_dir := Assemble(fq1_unzipped, fq2_unzipped, sample_id)
+
+// Main()
+@requires(cpu := 1)
+val Main = files.Copy(assembled_dir, output_dir) // not sure what to do here
