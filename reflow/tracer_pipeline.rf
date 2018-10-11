@@ -24,8 +24,8 @@ param (
 )
 
 // Declare GLOBAL variables
-//val tracer = "dcroote/tracer"
-val tracer = "teichlab/tracer"
+val tracer = "dcroote/tracer:add-cdr3"
+//val tracer = "teichlab/tracer"
 val gatk = "broadinstitute/gatk" // hoping this guy has gunzip
 // Initiate the system modules "files" (system modules begin
 // with $), assigning its instance to the "files" identifier.
@@ -51,11 +51,10 @@ func Assemble(sample_id string, fq1_unzipped file, fq2_unzipped file) dir = {
 
 		export IGDATA=/ncbi-igblast-1.7.0/bin
 		cp /tracer/docker_helper_files/docker_tracer.conf ~/.tracerrc
-		
+
 		tracer assemble --ncores {{threads}} --species Hsap {{d}}/read1.fq {{d}}/read2.fq {{sample_id}} {{out_dir}}
 	"}
 
-	//output
 }
 
 val fq1 = file(input_fq1) // initialized as a string, need to convert to file
