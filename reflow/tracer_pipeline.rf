@@ -11,12 +11,12 @@
 
 // command line params
 param (
+	// cell ID
+	sample_id string
 	// s3 path to fastq file r1
 	input_fq1 string
 	// s3 path to fastq file r2
 	input_fq2 string
-	// cell ID
-	sample_id string
 	// s3 path to output dir
 	output_dir string
 	// how many threads to execute Tracer assemble with

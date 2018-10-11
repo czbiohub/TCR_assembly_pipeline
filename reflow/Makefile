@@ -9,3 +9,6 @@ test_tracer:
 
 test_tracer1:
 	reflow run tracer_pipeline.rf -input_fq1 s3://darmanis-group/singlecell_lungadeno/immuneCells_9.27/170125/A11_1001000293/A11_1001000293_S86_R1_001.fastq.gz -input_fq2 s3://darmanis-group/singlecell_lungadeno/immuneCells_9.27/170125/A11_1001000293/A11_1001000293_S86_R2_001.fastq.gz -sample_id A11_1001000293 -output_dir s3://darmanis-group/singlecell_lungadeno/immuneCells_9.27/trinity_out/ -threads 4
+
+test_tracer2:
+	reflow runbatch 
