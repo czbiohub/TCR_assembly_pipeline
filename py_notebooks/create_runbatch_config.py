@@ -35,7 +35,8 @@ def writeFunc(samples_df):
 	with open(f'{out_dir}/config.json', 'w') as f:
 		json.dump(config, f)
     
-	get_ipython().system(' head -n 3 $out_dir/samples_big.csv $out_dir/config.json')
+    # check to see how it looks
+	get_ipython().system(' head -n 3 $out_dir/samples.csv $out_dir/config.json')
 
 # get_fastqs_R1()
 #      get full s3 paths for fastq file (R1), then add them to a new col in cells_df
@@ -89,7 +90,7 @@ def driver(prefix):
 	cells_df['output_prefix'] = 's3://darmanis-group/singlecell_lungadeno/immuneCells_9.27/trinity_out/'
     
     # subset cells_df by only what we want
-	cols_to_keep = ['sample_id', 'input_fq_1', 'input_fq_1', 'output_prefix']
+	cols_to_keep = ['sample_id', 'input_fq_1', 'input_fq_2', 'output_prefix']
 	samples_df = cells_df[cols_to_keep]
     
     # rename cols and add ID col
@@ -106,7 +107,7 @@ def driver(prefix):
 #
 
 bucketPrefixes = 's3://darmanis-group/singlecell_lungadeno/immuneCells_9.27/'
-f = 'nonImmune_bams_9.27_prefixes.txt'
+f = 'immuneCells_9.27.txt'
 get_ipython().system(' aws s3 ls $bucketPrefixes > $f')
     
 # read run prefixes into a pandas df
@@ -125,6 +126,7 @@ for i in range(0, len(runs_df.index)-1):
 	toConcat = [big_df, curr_df]
 	big_df = pd.concat(toConcat)
 	print(big_df.shape)
+	writeFunc(big_df)
 
 writeFunc(big_df)
 
