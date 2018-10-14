@@ -10,31 +10,28 @@
 #////////////////////////////////////////////////////////////////////
 #////////////////////////////////////////////////////////////////////
 import os
+import json
 import pandas as pd
 pd.options.display.max_colwidth = 500 # module config? 
-pd.options.mode.chained_assignment = None  # disable warning message? 
+pd.options.mode.chained_assignment = None  # disable warning message? -- really shouldnt be doing this...
 
 # writeFunc()
 #	TODO: ADD DESCRIPTION
 #
 def writeFunc(samples_df):
-	import json
-
+	# where do you want to write it? 
 	out_dir = '../tracer/test'
-
 	# write samples_df to file
 	get_ipython().system(' mkdir -p $out_dir')
 	samples_df.to_csv(f'{out_dir}/samples.csv', index=False)
-
 	# write a config file
 	config =     {
 		"program": "../../reflow/tracer_pipeline.rf",
 		"runs_file": "samples.csv"
 	}
-
+	# dump config file
 	with open(f'{out_dir}/config.json', 'w') as f:
 		json.dump(config, f)
-    
     # check to see how it looks
 	get_ipython().system(' head -n 3 $out_dir/samples.csv $out_dir/config.json')
 
@@ -45,7 +42,7 @@ def get_fastqs_R1(cell):
 	s3_location = f'{prefix}{cell}' #f? 
 	lines = get_ipython().getoutput('aws s3 ls $s3_location')
 	try:
-		fq_line = [x for x in lines if x.endswith('R1_001.fastq.gz')][0] # get the fastq files, specifically
+		fq_line = [x for x in lines if x.endswith('R1_001.fastq.gz')][0] # get the R1 fastq files
 		fq_basename = fq_line.split()[-1]
 		return f'{s3_location}{fq_basename}'
 	except IndexError:
@@ -58,9 +55,8 @@ def get_fastqs_R2(cell):
 	s3_location = f'{prefix}{cell}' #f? 
 	lines = get_ipython().getoutput('aws s3 ls $s3_location')
 	try:
-		fq_line = [x for x in lines if x.endswith('R2_001.fastq.gz')][0] # get the fastq files, specifically
+		fq_line = [x for x in lines if x.endswith('R2_001.fastq.gz')][0] # get the R2 fastq files
 		fq_basename = fq_line.split()[-1]
-		#print(s3_location)
 		return f'{s3_location}{fq_basename}'
 	except IndexError:
 		return
@@ -81,7 +77,7 @@ def driver(prefix):
 	cells_df['input_fq_1'] = cells_df['cell_name'].map(get_fastqs_R1) 
 
     # applying function, and assigning output to new col in cells_df
-	cells_df['input_fq_2'] = cells_df['cell_name'].map(get_fastqs_R2)
+	cells_df['input_fq_2'] = cells_df['cell_name'].map(get_fastqs_R2) # these map() calls are fucking incredible...
     
     # add a sample_id col
 	cells_df['sample_id'] = cells_df.cell_name.str.strip('/') # getting rid of the forward slashes
@@ -119,14 +115,14 @@ runs_df['full_path'] = 's3://darmanis-group/singlecell_lungadeno/immuneCells_9.2
 big_df = pd.DataFrame() # init empty dataframe
 
 for i in range(0, len(runs_df.index)-1):
-	global prefix # dont like this
+	global prefix # dont like this -- bad coding practice
 	prefix = runs_df['full_path'][i]
 	print(prefix)
 	curr_df = driver(prefix)
 	toConcat = [big_df, curr_df]
 	big_df = pd.concat(toConcat)
 	print(big_df.shape)
-	writeFunc(big_df)
+	writeFunc(big_df) # bc im nervous as FUCK 
 
 writeFunc(big_df)
 
