@@ -81,7 +81,7 @@ def engine(myPrefix, myTCellSet, myBucket):
 		#print(query_cell)
 		if query_cell in myTCellSet:
 			f_to_move.append(query_dir)
-			myStr = dest_bucket + query_cell + '/' + dir_split[4]
+			myStr = dest_bucket + query_cell + '/' + dir_split[3]
 			res_files.append(myStr)
     
 	return f_to_move, res_files
@@ -131,9 +131,9 @@ def driverLoop(pList, tcSet, cBucket):
   
 global dest_bucket
 
-tCellFile = getTCellFile("/home/ubuntu/expansionVol1/03-tCellGrab_redux/immune_tcells.csv")
+tCellFile = getTCellFile("/Users/lincoln.harris/Desktop/immuneList_1101.csv")
 tCellSet = getTCellSet(tCellFile)
-dest_bucket = 'singlecell_lungadeno/seqbot_tCells/'
+dest_bucket = 'singlecell_lungadeno/immune/immune_fastqs_9.27/181031/'
 
 inputFile = sys.argv[1]
 
@@ -145,7 +145,7 @@ with open(inputFile) as f:
 
 print(" ")
 print("STARTING")
-driverLoop(prefixList, tCellSet, 'czbiohub-seqbot')
+driverLoop(prefixList, tCellSet, 'czb-seqbot')
 print("done!")
 
 #////////////////////////////////////////////////////////////////////

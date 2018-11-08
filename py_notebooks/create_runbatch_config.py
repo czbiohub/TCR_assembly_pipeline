@@ -2,7 +2,7 @@
 #////////////////////////////////////////////////////////////////////
 #////////////////////////////////////////////////////////////////////
 # script: create_runbatch_config.py
-# authors: Olga Botvinnik & Lincoln Harris
+# authors: Lincoln Harris
 # date: 10.11.18
 #
 # Trying to build the input file to give tracer_pipeline.rf (required for batch mode run)
@@ -15,9 +15,11 @@ import pandas as pd
 pd.options.display.max_colwidth = 500 # module config? 
 pd.options.mode.chained_assignment = None  # disable warning message? -- really shouldnt be doing this...
 
+#////////////////////////////////////////////////////////////////////
 # writeFunc()
 #	TODO: ADD DESCRIPTION
 #
+#////////////////////////////////////////////////////////////////////
 def writeFunc(samples_df):
 	# where do you want to write it? 
 	out_dir = '../tracer/test'
@@ -35,9 +37,11 @@ def writeFunc(samples_df):
     # check to see how it looks
 	get_ipython().system(' head -n 3 $out_dir/samples.csv $out_dir/config.json')
 
+#////////////////////////////////////////////////////////////////////
 # get_fastqs_R1()
 #      get full s3 paths for fastq file (R1), then add them to a new col in cells_df
 # 
+#////////////////////////////////////////////////////////////////////
 def get_fastqs_R1(cell):
 	s3_location = f'{prefix}{cell}' #f? 
 	lines = get_ipython().getoutput('aws s3 ls $s3_location')
@@ -47,10 +51,12 @@ def get_fastqs_R1(cell):
 		return f'{s3_location}{fq_basename}'
 	except IndexError:
 		return
-    
+
+#////////////////////////////////////////////////////////////////////
 # get_fastqs_R2()
 #	get full s3 paths for fastq file (R2), then add them to a new col in cells_df
 #
+#////////////////////////////////////////////////////////////////////
 def get_fastqs_R2(cell):
 	s3_location = f'{prefix}{cell}' #f? 
 	lines = get_ipython().getoutput('aws s3 ls $s3_location')
@@ -61,9 +67,11 @@ def get_fastqs_R2(cell):
 	except IndexError:
 		return
 
+#////////////////////////////////////////////////////////////////////
 # driver()
 #     Gets cell names given a prefix, and sets up dataframe
 #
+#////////////////////////////////////////////////////////////////////
 def driver(prefix): 
      
     # get all of the cells in a given run directory
@@ -98,9 +106,11 @@ def driver(prefix):
 
 	return samples_df
 
+#////////////////////////////////////////////////////////////////////
 # main()
 #	TODO: ADD DESCRIPTION
 #
+#////////////////////////////////////////////////////////////////////
 
 bucketPrefixes = 's3://darmanis-group/singlecell_lungadeno/immuneCells_9.27/'
 f = 'immuneCells_9.27.txt'
