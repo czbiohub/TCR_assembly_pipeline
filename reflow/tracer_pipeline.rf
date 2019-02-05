@@ -37,7 +37,7 @@ val dirs = make("$/dirs")
 // Unzip()
 //		gunzip the the gzipped fastqs
 func Unzip(gzipped file) = 
-	exec(image := gatk, cpu := 4, mem := 16*GiB) (output file) {"
+	exec(image := gatk, cpu := 4, mem := 16*GiB, disk := 50*GiB) (output file) {"
 		gunzip -c {{gzipped}} > {{output}}
 	"}
 
@@ -47,7 +47,7 @@ func Assemble(sample_id string, fq1_unzipped file, fq2_unzipped file) dir = {
 
 	d := dirs.Make(["read1.fq": fq1_unzipped, "read2.fq": fq2_unzipped])
 
-	exec(image := tracer, cpu := threads, mem := 16*GiB) (out_dir dir) {"
+	exec(image := tracer, cpu := threads, mem := 16*GiB, disk := 50*GiB) (out_dir dir) {"
 
 		export IGDATA=/ncbi-igblast-1.7.0/bin
 		cp /tracer/docker_helper_files/docker_tracer.conf ~/.tracerrc
