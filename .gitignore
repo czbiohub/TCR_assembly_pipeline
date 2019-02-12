@@ -9,3 +9,10 @@ state*
 
 # python cache
 __pycache__
+
+# all this shit 
+trinityOut
+aligned_reads
+filtered_TCR_seqs
+Trinity_output
+unfiltered_TCR_seqs
